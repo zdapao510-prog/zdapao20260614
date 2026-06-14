@@ -144,13 +144,13 @@ function restartGame() {
     fetchLeaderboard();
 }
 
+
 function togglePause() {
     if (!state.running || state.gameOver) return;
     state.paused = !state.paused;
-    document.getElementById("btn-pause").textContent = state.paused ? "继续" : "暂停";
-    if (!state.paused) draw();
+    document.getElementById("btn-pause").textContent = state.paused ? "Resume" : "Pause";
+    draw();
 }
-
 // === Drawing ===
 
 function draw() {
