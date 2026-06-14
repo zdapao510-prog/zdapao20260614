@@ -43,10 +43,10 @@ public class App {
 
     // ======================== Database ========================
     static class DatabaseService {
-        private static final String DB_URL = "jdbc:h2:file:./data/snakegame;AUTO_SERVER=TRUE";
+        private static final String DB_URL = "jdbc:mysql://localhost:3306/snake_game?useSSL=false";
 
         DatabaseService() throws Exception {
-            Class.forName("org.h2.Driver");
+            Class.forName("com.mysql.jdbc.Driver");
             try (Connection conn = getConnection();
                  Statement stmt = conn.createStatement()) {
                 stmt.execute("CREATE TABLE IF NOT EXISTS scores (" +
@@ -56,12 +56,12 @@ public class App {
                     "snake_length INT NOT NULL," +
                     "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                     ")");
-                System.out.println("DB: Table ready");
+                System.out.println("DB: MySQL connected - snake_game");
             }
         }
 
         Connection getConnection() throws SQLException {
-            return DriverManager.getConnection(DB_URL, "sa", "");
+            return DriverManager.getConnection(DB_URL, "root", "");
         }
 
         synchronized void submitScore(ScoreEntry entry) {
@@ -101,7 +101,7 @@ public class App {
         }
     }
 
-    static final DatabaseService db;
+    static final DatabaseService    db;
 
     static {
         try {
@@ -133,7 +133,7 @@ public class App {
         server.start();
 
         System.out.println("=== Snake Game ===");
-        System.out.println("DB: data/snakegame.mv.db");
+        System.out.println("DB: jdbc:mysql://localhost:3306/snake_game");
         System.out.println("Server started on http://localhost:" + port);
     }
 

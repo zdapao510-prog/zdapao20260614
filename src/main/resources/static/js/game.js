@@ -123,11 +123,12 @@ function endGame() {
     clearInterval(state.tickId);
     draw();
 
-    overlayTitle.textContent = "?? Game Over";
+    overlayTitle.textContent = "Game Over";
     overlaySub.textContent = "分数: " + state.score + "  |  按空格键重新开始";
     submitScoreDiv.classList.remove("hidden");
     submitMsg.classList.add("hidden");
     playerNameInput.value = "";
+    submitBtn.disabled = false;
     overlay.classList.remove("hidden");
 }
 
@@ -277,16 +278,16 @@ async function submitScore() {
             body: JSON.stringify({ playerName: name, score: state.score, length: state.snake.length }),
         });
         if (res.ok) {
-            submitMsg.textContent = "? 分数已提交！";
+            submitMsg.textContent = "OK - Score submitted!";
             submitMsg.classList.remove("hidden");
             submitBtn.disabled = true;
             fetchLeaderboard();
         } else {
-            submitMsg.textContent = "? 提交失败";
+            submitMsg.textContent = "Failed to submit";
             submitMsg.classList.remove("hidden");
         }
     } catch {
-        submitMsg.textContent = "? 无法连接到服务器";
+            submitMsg.textContent = "Cannot connect to server";
         submitMsg.classList.remove("hidden");
     }
 }

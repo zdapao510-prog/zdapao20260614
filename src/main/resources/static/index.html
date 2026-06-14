@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>贪吃蛇 - Snake Game</title>
+    <title>Snake Game</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -12,8 +12,8 @@
             <div id="header">
                 <h1>?? 贪吃蛇</h1>
                 <div id="score-board">
-                    <span>分数: <strong id="score">0</strong></span>
-                    <span>最高: <strong id="high-score">0</strong></span>
+                    <span>Score: <strong id="score">0</strong></span>
+                    <span>Best: <strong id="high-score">0</strong></span>
                 </div>
             </div>
             <div id="canvas-wrapper">
@@ -21,10 +21,10 @@
                 <div id="overlay" class="hidden">
                     <div id="overlay-content">
                         <h2 id="overlay-title">Game Over</h2>
-                        <p id="overlay-sub">按空格键重新开始</p>
+                        <p id="overlay-sub">Press SPACE to restart</p>
                         <div id="submit-score" class="hidden">
-                            <input type="text" id="player-name" placeholder="输入昵称" maxlength="10">
-                            <button id="submit-btn">提交分数</button>
+                            <input type="text" id="player-name" placeholder="Enter name" maxlength="10">
+                            <button id="submit-btn">Submit</button>
                         </div>
                         <p id="submit-msg" class="hidden"></p>
                     </div>
@@ -38,14 +38,14 @@
                 </div>
             </div>
             <div id="controls">
-                <button id="btn-restart">重新开始</button>
-                <button id="btn-pause">暂停</button>
+                <button id="btn-restart">Restart</button>
+                <button id="btn-pause">Pause</button>
             </div>
             <div id="leaderboard">
                 <h3>?? 排行榜</h3>
                 <table id="rank-table">
                     <thead>
-                        <tr><th>#</th><th>玩家</th><th>分数</th><th>长度</th></tr>
+                        <tr><th>#</th><th>Player</th><th>分数</th><th>长度</th></tr>
                     </thead>
                     <tbody id="rank-body"></tbody>
                 </table>

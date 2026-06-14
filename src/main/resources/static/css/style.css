@@ -93,6 +93,8 @@ body {
 #submit-msg { color: #ffd700; font-size: 13px; margin-top: 8px; }
 #submit-msg.hidden { display: none; }
 
+#submit-score.hidden { display: none; }
+
 #controls {
     display: flex; gap: 10px;
     justify-content: center; margin-top: 12px;
@@ -124,3 +126,4 @@ body {
 
 #rank-table td { color: #ccc; }
 #rank-table tbody tr:hover td { background: #1a1a35; }
+
