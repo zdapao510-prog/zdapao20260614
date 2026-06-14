@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 public class App {
 
+    // ======================== Model ========================
     static class ScoreEntry {
         String playerName;
         int score;
@@ -39,23 +41,75 @@ public class App {
         }
     }
 
-    static class GameService {
-        final List<ScoreEntry> highScores = new CopyOnWriteArrayList<>();
+    // ======================== Database ========================
+    static class DatabaseService {
+        private static final String DB_URL = "jdbc:h2:file:./data/snakegame;AUTO_SERVER=TRUE";
 
-        synchronized void submitScore(ScoreEntry entry) {
-            highScores.add(entry);
+        DatabaseService() throws Exception {
+            Class.forName("org.h2.Driver");
+            try (Connection conn = getConnection();
+                 Statement stmt = conn.createStatement()) {
+                stmt.execute("CREATE TABLE IF NOT EXISTS scores (" +
+                    "id INT AUTO_INCREMENT PRIMARY KEY," +
+                    "player_name VARCHAR(100) NOT NULL," +
+                    "score INT NOT NULL," +
+                    "snake_length INT NOT NULL," +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                    ")");
+                System.out.println("DB: Table ready");
+            }
         }
 
-        List<ScoreEntry> getTopScores(int limit) {
-            return highScores.stream()
-                .sorted(Comparator.comparingInt((ScoreEntry s) -> s.score).reversed()
-                    .thenComparing(s -> s.timestamp))
-                .limit(limit)
-                .collect(Collectors.toList());
+        Connection getConnection() throws SQLException {
+            return DriverManager.getConnection(DB_URL, "sa", "");
+        }
+
+        synchronized void submitScore(ScoreEntry entry) {
+            String sql = "INSERT INTO scores (player_name, score, snake_length) VALUES (?, ?, ?)";
+            try (Connection conn = getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, entry.playerName);
+                ps.setInt(2, entry.score);
+                ps.setInt(3, entry.length);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                System.err.println("DB insert error: " + e.getMessage());
+            }
+        }
+
+        synchronized List<ScoreEntry> getTopScores(int limit) {
+            List<ScoreEntry> result = new ArrayList<>();
+            String sql = "SELECT player_name, score, snake_length, created_at FROM scores ORDER BY score DESC, created_at ASC LIMIT ?";
+            try (Connection conn = getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, limit);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        ScoreEntry e = new ScoreEntry();
+                        e.playerName = rs.getString("player_name");
+                        e.score = rs.getInt("score");
+                        e.length = rs.getInt("snake_length");
+                        Timestamp ts = rs.getTimestamp("created_at");
+                        e.timestamp = ts != null ? ts.toLocalDateTime() : LocalDateTime.now();
+                        result.add(e);
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("DB query error: " + e.getMessage());
+            }
+            return result;
         }
     }
 
-    static final GameService gameService = new GameService();
+    static final DatabaseService db;
+
+    static {
+        try {
+            db = new DatabaseService();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to init database", e);
+        }
+    }
 
     static String escapeJson(String s) {
         if (s == null) return "";
@@ -66,6 +120,7 @@ public class App {
                 .replace("\t", "\\t");
     }
 
+    // ======================== Main ========================
     public static void main(String[] args) throws Exception {
         int port = Integer.parseInt(System.getProperty("server.port", "8080"));
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
@@ -78,9 +133,11 @@ public class App {
         server.start();
 
         System.out.println("=== Snake Game ===");
+        System.out.println("DB: data/snakegame.mv.db");
         System.out.println("Server started on http://localhost:" + port);
     }
 
+    // ======================== Handlers ========================
     static class ConfigHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -106,7 +163,7 @@ public class App {
                 if (query != null && query.startsWith("limit=")) {
                     try { limit = Integer.parseInt(query.substring(6)); } catch (Exception ignored) {}
                 }
-                List<ScoreEntry> scores = gameService.getTopScores(limit);
+                List<ScoreEntry> scores = db.getTopScores(limit);
                 StringBuilder sb = new StringBuilder("[");
                 for (int i = 0; i < scores.size(); i++) {
                     if (i > 0) sb.append(",");
@@ -121,12 +178,11 @@ public class App {
                 int score = extractJsonInt(body, "score");
                 int length = extractJsonInt(body, "length");
                 if (name == null || name.isEmpty()) name = "Anonymous";
-                gameService.submitScore(new ScoreEntry(name, score, length));
+                db.submitScore(new ScoreEntry(name, score, length));
                 sendJson(exchange, 200, "{\"status\":\"ok\"}");
 
             } else if ("OPTIONS".equals(method)) {
                 exchange.sendResponseHeaders(204, -1);
-
             } else {
                 exchange.sendResponseHeaders(405, -1);
             }
@@ -184,6 +240,7 @@ public class App {
         }
     }
 
+    // ======================== Helpers ========================
     static void setCors(HttpExchange exchange) {
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
         exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");

@@ -1,27 +1,15 @@
-# Maven
 target/
+build/
+data/
+lib/
 *.jar
-*.war
-*.ear
-
-# IDE
 .idea/
 *.iml
 .vscode/
-.settings/
-.project
 .classpath
+.project
+.settings/
 *.class
-out/
-build/
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Logs
 *.log
-
-# Build
-build/
-target/

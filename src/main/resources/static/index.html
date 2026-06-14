@@ -1,19 +1,19 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ì°³ÔÉß - Snake Game</title>
+    <title>è´ªåƒè›‡ - Snake Game</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div id="app">
         <div id="game-container">
             <div id="header">
-                <h1>?? Ì°³ÔÉß</h1>
+                <h1>?? è´ªåƒè›‡</h1>
                 <div id="score-board">
-                    <span>·ÖÊý: <strong id="score">0</strong></span>
-                    <span>×î¸ß: <strong id="high-score">0</strong></span>
+                    <span>åˆ†æ•°: <strong id="score">0</strong></span>
+                    <span>æœ€é«˜: <strong id="high-score">0</strong></span>
                 </div>
             </div>
             <div id="canvas-wrapper">
@@ -21,31 +21,31 @@
                 <div id="overlay" class="hidden">
                     <div id="overlay-content">
                         <h2 id="overlay-title">Game Over</h2>
-                        <p id="overlay-sub">°´¿Õ¸ñ¼üÖØÐÂ¿ªÊ¼</p>
+                        <p id="overlay-sub">æŒ‰ç©ºæ ¼é”®é‡æ–°å¼€å§‹</p>
                         <div id="submit-score" class="hidden">
-                            <input type="text" id="player-name" placeholder="ÊäÈëêÇ³Æ" maxlength="10">
-                            <button id="submit-btn">Ìá½»·ÖÊý</button>
+                            <input type="text" id="player-name" placeholder="è¾“å…¥æ˜µç§°" maxlength="10">
+                            <button id="submit-btn">æäº¤åˆ†æ•°</button>
                         </div>
                         <p id="submit-msg" class="hidden"></p>
                     </div>
                 </div>
                 <div id="start-overlay">
                     <div id="start-content">
-                        <h2>?? Ì°³ÔÉß</h2>
-                        <p>·½Ïò¼ü / WASD ¿ØÖÆÒÆ¶¯</p>
-                        <p>°´ <kbd>Space</kbd> ¿ªÊ¼ÓÎÏ·</p>
+                        <h2>?? è´ªåƒè›‡</h2>
+                        <p>æ–¹å‘é”® / WASD æŽ§åˆ¶ç§»åŠ¨</p>
+                        <p>æŒ‰ <kbd>Space</kbd> å¼€å§‹æ¸¸æˆ</p>
                     </div>
                 </div>
             </div>
             <div id="controls">
-                <button id="btn-restart">ÖØÐÂ¿ªÊ¼</button>
-                <button id="btn-pause">ÔÝÍ£</button>
+                <button id="btn-restart">é‡æ–°å¼€å§‹</button>
+                <button id="btn-pause">æš‚åœ</button>
             </div>
             <div id="leaderboard">
-                <h3>?? ÅÅÐÐ°ñ</h3>
+                <h3>?? æŽ’è¡Œæ¦œ</h3>
                 <table id="rank-table">
                     <thead>
-                        <tr><th>#</th><th>Íæ¼Ò</th><th>·ÖÊý</th><th>³¤¶È</th></tr>
+                        <tr><th>#</th><th>çŽ©å®¶</th><th>åˆ†æ•°</th><th>é•¿åº¦</th></tr>
                     </thead>
                     <tbody id="rank-body"></tbody>
                 </table>

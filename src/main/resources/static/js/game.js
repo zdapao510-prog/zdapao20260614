@@ -1,4 +1,4 @@
-// === Game Constants ===
+ï»¿// === Game Constants ===
 const DIR = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
 const CELL = 25;
 const COLS = 20, ROWS = 20;
@@ -124,7 +124,7 @@ function endGame() {
     draw();
 
     overlayTitle.textContent = "?? Game Over";
-    overlaySub.textContent = "·ÖÊı: " + state.score + "  |  °´¿Õ¸ñ¼üÖØĞÂ¿ªÊ¼";
+    overlaySub.textContent = "åˆ†æ•°: " + state.score + "  |  æŒ‰ç©ºæ ¼é”®é‡æ–°å¼€å§‹";
     submitScoreDiv.classList.remove("hidden");
     submitMsg.classList.add("hidden");
     playerNameInput.value = "";
@@ -146,7 +146,7 @@ function restartGame() {
 function togglePause() {
     if (!state.running || state.gameOver) return;
     state.paused = !state.paused;
-    document.getElementById("btn-pause").textContent = state.paused ? "¼ÌĞø" : "ÔİÍ£";
+    document.getElementById("btn-pause").textContent = state.paused ? "ç»§ç»­" : "æš‚åœ";
     if (!state.paused) draw();
 }
 
@@ -211,7 +211,7 @@ function draw() {
         ctx.fillStyle = "#00d4aa";
         ctx.font = "bold 36px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("? ÔİÍ£", canvas.width / 2, canvas.height / 2);
+        ctx.fillText("? æš‚åœ", canvas.width / 2, canvas.height / 2);
     }
 }
 
@@ -269,7 +269,7 @@ document.addEventListener("keydown", (e) => {
 // === API ===
 
 async function submitScore() {
-    const name = playerNameInput.value.trim() || "ÄäÃû";
+    const name = playerNameInput.value.trim() || "åŒ¿å";
     try {
         const res = await fetch("/api/scores", {
             method: "POST",
@@ -277,16 +277,16 @@ async function submitScore() {
             body: JSON.stringify({ playerName: name, score: state.score, length: state.snake.length }),
         });
         if (res.ok) {
-            submitMsg.textContent = "? ·ÖÊıÒÑÌá½»£¡";
+            submitMsg.textContent = "? åˆ†æ•°å·²æäº¤ï¼";
             submitMsg.classList.remove("hidden");
             submitBtn.disabled = true;
             fetchLeaderboard();
         } else {
-            submitMsg.textContent = "? Ìá½»Ê§°Ü";
+            submitMsg.textContent = "? æäº¤å¤±è´¥";
             submitMsg.classList.remove("hidden");
         }
     } catch {
-        submitMsg.textContent = "? ÎŞ·¨Á¬½Óµ½·şÎñÆ÷";
+        submitMsg.textContent = "? æ— æ³•è¿æ¥åˆ°æœåŠ¡å™¨";
         submitMsg.classList.remove("hidden");
     }
 }
