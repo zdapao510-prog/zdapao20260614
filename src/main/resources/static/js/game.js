@@ -124,7 +124,7 @@ function endGame() {
     draw();
 
     overlayTitle.textContent = "Game Over";
-    overlaySub.textContent = "分数: " + state.score + "  |  按空格键重新开始";
+    overlaySub.textContent = "Score: " + state.score + "  |  Press SPACE to restart";
     submitScoreDiv.classList.remove("hidden");
     submitMsg.classList.add("hidden");
     playerNameInput.value = "";
@@ -212,7 +212,7 @@ function draw() {
         ctx.fillStyle = "#00d4aa";
         ctx.font = "bold 36px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("? 暂停", canvas.width / 2, canvas.height / 2);
+        ctx.fillText("PAUSED", canvas.width / 2, canvas.height / 2);
     }
 }
 
@@ -270,7 +270,7 @@ document.addEventListener("keydown", (e) => {
 // === API ===
 
 async function submitScore() {
-    const name = playerNameInput.value.trim() || "匿名";
+    const name = playerNameInput.value.trim() || "Anonymous";
     try {
         const res = await fetch("/api/scores", {
             method: "POST",
