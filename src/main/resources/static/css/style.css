@@ -127,3 +127,35 @@ body {
 #rank-table td { color: #ccc; }
 #rank-table tbody tr:hover td { background: #1a1a35; }
 
+
+#settings { margin-top: 12px; }
+.setting-header {
+    background: #2a2a4a; color: #aaa; cursor: pointer; user-select: none;
+    padding: 8px 14px; border-radius: 6px; font-size: 13px; text-align: center;
+}
+.setting-header:hover { background: #3a3a5a; }
+#settings-body { padding: 12px 0 4px; }
+.setting-row { margin-bottom: 10px; }
+.setting-row label { font-size: 13px; color: #ccc; display: block; margin-bottom: 6px; }
+.setting-row label strong { color: #ffd700; }
+
+#speed-slider {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+    background: #2a2a4a; border-radius: 3px; outline: none;
+}
+#speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+    background: #00d4aa; border-radius: 50%; cursor: pointer;
+    box-shadow: 0 0 8px rgba(0,212,170,0.5);
+}
+#speed-slider::-moz-range-thumb {
+    width: 18px; height: 18px; background: #00d4aa; border-radius: 50%; cursor: pointer; border: none;
+}
+
+.speed-presets { display: flex; gap: 6px; margin-top: 8px; }
+.speed-btn {
+    flex: 1; background: #2a2a4a; color: #aaa; border: 1px solid #444;
+    padding: 5px 0; border-radius: 4px; cursor: pointer; font-size: 12px;
+}
+.speed-btn:hover { background: #3a3a5a; }
+.speed-btn.active { background: #00d4aa; color: #000; border-color: #00d4aa; font-weight: bold; }

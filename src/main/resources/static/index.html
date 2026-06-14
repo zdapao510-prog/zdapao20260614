@@ -41,6 +41,22 @@
                 <button id="btn-restart">Restart</button>
                 <button id="btn-pause">Pause</button>
             </div>
+                        </div>
+            <div id="settings">
+                <div class="setting-header" id="settings-toggle">Settings &#9660;</div>
+                <div id="settings-body">
+                    <div class="setting-row">
+                        <label>Speed: <strong id="speed-value">150ms</strong></label>
+                        <input type="range" id="speed-slider" min="30" max="300" value="150" step="10">
+                        <div class="speed-presets">
+                            <button class="speed-btn" data-speed="200">Easy</button>
+                            <button class="speed-btn active" data-speed="150">Medium</button>
+                            <button class="speed-btn" data-speed="80">Hard</button>
+                            <button class="speed-btn" data-speed="40">Insane</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="leaderboard">
                 <h3>Leaderboard</h3>
                 <table id="rank-table">
