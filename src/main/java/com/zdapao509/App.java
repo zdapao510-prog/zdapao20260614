@@ -9,7 +9,7 @@ public class App {
         System.out.println("Hello from zdapao509!");
         System.out.println("项目: zdapao20260614");
         System.out.println("Java 版本: " + System.getProperty("java.version"));
-
+        System.out.println("a new file!");
         if (args.length > 0) {
             System.out.println("传入参数:");
             for (int i = 0; i < args.length; i++) {
