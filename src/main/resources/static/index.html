@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇 - Snake Game</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="game-container">
+            <div id="header">
+                <h1>?? 贪吃蛇</h1>
+                <div id="score-board">
+                    <span>分数: <strong id="score">0</strong></span>
+                    <span>最高: <strong id="high-score">0</strong></span>
+                </div>
+            </div>
+            <div id="canvas-wrapper">
+                <canvas id="game-canvas"></canvas>
+                <div id="overlay" class="hidden">
+                    <div id="overlay-content">
+                        <h2 id="overlay-title">Game Over</h2>
+                        <p id="overlay-sub">按空格键重新开始</p>
+                        <div id="submit-score" class="hidden">
+                            <input type="text" id="player-name" placeholder="输入昵称" maxlength="10">
+                            <button id="submit-btn">提交分数</button>
+                        </div>
+                        <p id="submit-msg" class="hidden"></p>
+                    </div>
+                </div>
+                <div id="start-overlay">
+                    <div id="start-content">
+                        <h2>?? 贪吃蛇</h2>
+                        <p>方向键 / WASD 控制移动</p>
+                        <p>按 <kbd>Space</kbd> 开始游戏</p>
+                    </div>
+                </div>
+            </div>
+            <div id="controls">
+                <button id="btn-restart">重新开始</button>
+                <button id="btn-pause">暂停</button>
+            </div>
+            <div id="leaderboard">
+                <h3>?? 排行榜</h3>
+                <table id="rank-table">
+                    <thead>
+                        <tr><th>#</th><th>玩家</th><th>分数</th><th>长度</th></tr>
+                    </thead>
+                    <tbody id="rank-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="js/game.js"></script>
+</body>
+</html>

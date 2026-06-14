@@ -1,20 +1,229 @@
 package com.zdapao509;
 
-/**
- * zdapao509 的 Java 项目 — 主应用入口
- */
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+
 public class App {
 
-    public static void main(String[] args) {
-        System.out.println("Hello from zdapao509!");
-        System.out.println("项目: zdapao20260614");
-        System.out.println("Java 版本: " + System.getProperty("java.version"));
-        System.out.println("a new file! by new branch");
-        if (args.length > 0) {
-            System.out.println("传入参数:");
-            for (int i = 0; i < args.length; i++) {
-                System.out.println("  [" + i + "] " + args[i]);
+    static class ScoreEntry {
+        String playerName;
+        int score;
+        int length;
+        LocalDateTime timestamp;
+
+        ScoreEntry() { this.timestamp = LocalDateTime.now(); }
+
+        ScoreEntry(String playerName, int score, int length) {
+            this.playerName = playerName;
+            this.score = score;
+            this.length = length;
+            this.timestamp = LocalDateTime.now();
+        }
+
+        String toJson() {
+            return "{\"playerName\":\"" + escapeJson(playerName)
+                + "\",\"score\":" + score
+                + ",\"length\":" + length
+                + ",\"timestamp\":\"" + timestamp + "\"}";
+        }
+    }
+
+    static class GameService {
+        final List<ScoreEntry> highScores = new CopyOnWriteArrayList<>();
+
+        synchronized void submitScore(ScoreEntry entry) {
+            highScores.add(entry);
+        }
+
+        List<ScoreEntry> getTopScores(int limit) {
+            return highScores.stream()
+                .sorted(Comparator.comparingInt((ScoreEntry s) -> s.score).reversed()
+                    .thenComparing(s -> s.timestamp))
+                .limit(limit)
+                .collect(Collectors.toList());
+        }
+    }
+
+    static final GameService gameService = new GameService();
+
+    static String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
+    }
+
+    public static void main(String[] args) throws Exception {
+        int port = Integer.parseInt(System.getProperty("server.port", "8080"));
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+
+        server.createContext("/api/config", new ConfigHandler());
+        server.createContext("/api/scores", new ScoresHandler());
+        server.createContext("/", new StaticHandler());
+
+        server.setExecutor(java.util.concurrent.Executors.newFixedThreadPool(4));
+        server.start();
+
+        System.out.println("=== Snake Game ===");
+        System.out.println("Server started on http://localhost:" + port);
+    }
+
+    static class ConfigHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            setCors(exchange);
+            if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(405, -1);
+                return;
+            }
+            String json = "{\"boardWidth\":20,\"boardHeight\":20,\"initialSpeed\":150,\"cellSize\":25}";
+            sendJson(exchange, 200, json);
+        }
+    }
+
+    static class ScoresHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            setCors(exchange);
+            String method = exchange.getRequestMethod().toUpperCase();
+
+            if ("GET".equals(method)) {
+                String query = exchange.getRequestURI().getQuery();
+                int limit = 10;
+                if (query != null && query.startsWith("limit=")) {
+                    try { limit = Integer.parseInt(query.substring(6)); } catch (Exception ignored) {}
+                }
+                List<ScoreEntry> scores = gameService.getTopScores(limit);
+                StringBuilder sb = new StringBuilder("[");
+                for (int i = 0; i < scores.size(); i++) {
+                    if (i > 0) sb.append(",");
+                    sb.append(scores.get(i).toJson());
+                }
+                sb.append("]");
+                sendJson(exchange, 200, sb.toString());
+
+            } else if ("POST".equals(method)) {
+                String body = readBody(exchange);
+                String name = extractJsonString(body, "playerName");
+                int score = extractJsonInt(body, "score");
+                int length = extractJsonInt(body, "length");
+                if (name == null || name.isEmpty()) name = "Anonymous";
+                gameService.submitScore(new ScoreEntry(name, score, length));
+                sendJson(exchange, 200, "{\"status\":\"ok\"}");
+
+            } else if ("OPTIONS".equals(method)) {
+                exchange.sendResponseHeaders(204, -1);
+
+            } else {
+                exchange.sendResponseHeaders(405, -1);
             }
         }
+    }
+
+    static class StaticHandler implements HttpHandler {
+        private static final String[] STATIC_ROOTS = {
+            "src/main/resources/static",
+            "E:/zdapao0614/src/main/resources/static"
+        };
+
+        private static final Map<String, String> MIME_TYPES = new HashMap<>();
+        static {
+            MIME_TYPES.put("html", "text/html; charset=utf-8");
+            MIME_TYPES.put("css", "text/css; charset=utf-8");
+            MIME_TYPES.put("js", "application/javascript; charset=utf-8");
+            MIME_TYPES.put("png", "image/png");
+            MIME_TYPES.put("jpg", "image/jpeg");
+            MIME_TYPES.put("svg", "image/svg+xml");
+            MIME_TYPES.put("ico", "image/x-icon");
+        }
+
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            setCors(exchange);
+            String path = exchange.getRequestURI().getPath();
+            if (path.equals("/")) path = "/index.html";
+
+            for (String root : STATIC_ROOTS) {
+                Path filePath = Paths.get(root, path);
+                if (Files.exists(filePath) && !Files.isDirectory(filePath)) {
+                    String ext = getExtension(path);
+                    String mime = MIME_TYPES.getOrDefault(ext, "application/octet-stream");
+                    exchange.getResponseHeaders().set("Content-Type", mime);
+                    exchange.sendResponseHeaders(200, Files.size(filePath));
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        Files.copy(filePath, os);
+                    }
+                    return;
+                }
+            }
+
+            String error = "404 Not Found";
+            byte[] errorBytes = error.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(404, errorBytes.length);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(errorBytes);
+            }
+        }
+
+        String getExtension(String path) {
+            int idx = path.lastIndexOf('.');
+            return idx > 0 ? path.substring(idx + 1).toLowerCase() : "";
+        }
+    }
+
+    static void setCors(HttpExchange exchange) {
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+    }
+
+    static void sendJson(HttpExchange exchange, int code, String json) throws IOException {
+        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(code, bytes.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(bytes);
+        }
+    }
+
+    static String readBody(HttpExchange exchange) throws IOException {
+        try (InputStream is = exchange.getRequestBody()) {
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+    static String extractJsonString(String json, String key) {
+        String search = "\"" + key + "\":\"";
+        int start = json.indexOf(search);
+        if (start < 0) return null;
+        start += search.length();
+        int end = json.indexOf("\"", start);
+        return end > start ? json.substring(start, end) : null;
+    }
+
+    static int extractJsonInt(String json, String key) {
+        String search = "\"" + key + "\":";
+        int start = json.indexOf(search);
+        if (start < 0) return 0;
+        start += search.length();
+        int end = json.indexOf(",", start);
+        if (end < 0) end = json.indexOf("}", start);
+        if (end < 0) end = json.indexOf("]", start);
+        if (end < 0) return 0;
+        try { return Integer.parseInt(json.substring(start, end).trim()); }
+        catch (NumberFormatException e) { return 0; }
     }
 }

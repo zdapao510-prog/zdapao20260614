@@ -1,25 +1,48 @@
-# zdapao20260614
+# Snake Game - 贪吃蛇
 
-zdapao509 的 Java 项目
+A web-based Snake game with Java backend (zero external dependencies).
 
-## 构建
-
-```bash
-mvn clean package
-```
-
-## 运行
+## Quick Start
 
 ```bash
-java -jar target/zdapao20260614-1.0.0.jar
+# Compile
+javac -encoding UTF-8 -d build src/main/java/com/zdapao509/App.java
+
+# Run
+java -cp build com.zdapao509.App
+
+# Or use Maven
+mvn compile
+mvn exec:java -Dexec.mainClass="com.zdapao509.App"
 ```
 
-## 项目结构
+Open http://localhost:8080 to play.
+
+## Controls
+
+| Action | Key |
+|--------|-----|
+| Move | Arrow Keys / WASD |
+| Pause | P |
+| Start / Restart | Space |
+
+## API
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/config | Game configuration |
+| GET | /api/scores?limit=10 | Leaderboard |
+| POST | /api/scores | Submit score |
+
+## Project Structure
 
 ```
-├── pom.xml              # Maven 构建配置
-├── src/
-│   ├── main/java/       # 源代码
-│   └── test/java/       # 测试代码
-└── README.md
+├── pom.xml
+└── src/main/
+    ├── java/com/zdapao509/
+    │   └── App.java           # HTTP server + game logic
+    └── resources/static/
+        ├── index.html          # Game page
+        ├── css/style.css       # Styles
+        └── js/game.js          # Snake game (Canvas)
 ```
